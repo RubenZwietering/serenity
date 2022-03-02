@@ -103,8 +103,8 @@ UNMAP_AFTER_INIT void Processor::cpu_detect()
         set_feature(CPUFeature::XSAVE);
     if (processor_info.ecx() & (1 << 28))
         set_feature(CPUFeature::AVX);
-    if (processor_info.ecx() & (1 << 30))
-        set_feature(CPUFeature::RDRAND);
+    // if (processor_info.ecx() & (1 << 30))
+    //    set_feature(CPUFeature::RDRAND);
     if (processor_info.ecx() & (1u << 31))
         set_feature(CPUFeature::HYPERVISOR);
     if (processor_info.edx() & (1 << 11)) {
@@ -183,8 +183,8 @@ UNMAP_AFTER_INIT void Processor::cpu_detect()
         set_feature(CPUFeature::SMEP);
     if (extended_features.ecx() & (1 << 2))
         set_feature(CPUFeature::UMIP);
-    if (extended_features.ebx() & (1 << 18))
-        set_feature(CPUFeature::RDSEED);
+    // if (extended_features.ebx() & (1 << 18))
+    //    set_feature(CPUFeature::RDSEED);
 }
 
 UNMAP_AFTER_INIT void Processor::cpu_setup()
