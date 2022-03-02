@@ -58,8 +58,7 @@ SERENITY_RUN="${SERENITY_RUN:-$1}"
 if [ -z "$SERENITY_QEMU_BIN" ]; then
     if command -v wslpath >/dev/null; then
         # Some Windows systems don't have reg.exe's directory on the PATH by default.
-        PATH=$PATH:/mnt/c/Windows/System32
-        QEMU_INSTALL_DIR=$(reg.exe query 'HKLM\Software\QEMU' /v Install_Dir /t REG_SZ | grep '^    Install_Dir' | sed 's/    / /g' | cut -f4- -d' ')
+        QEMU_INSTALL_DIR=$(/win/c/Windows/System32/reg.exe query 'HKLM\Software\QEMU' /v Install_Dir /t REG_SZ | grep '^    Install_Dir' | sed 's/    / /g' | cut -f4- -d' ')
         if [ -z "$QEMU_INSTALL_DIR" ]; then
             if [ "$KVM_SUPPORT" -eq "0" ]; then
                 die "Could not determine where QEMU for Windows is installed. Please make sure QEMU is installed or set SERENITY_QEMU_BIN if it is already installed."
@@ -98,8 +97,8 @@ fi
     fi
     if command -v wslpath >/dev/null; then
         case "$SERENITY_QEMU_BIN" in
-            /mnt/?/*)
-                SERENITY_DISK_IMAGE=$(wslpath -w "$SERENITY_DISK_IMAGE")
+            /win/?/*)
+                SERENITY_DISK_IMAGE=$(wslpath -w "${SERENITY_DISK_IMAGE}")
                 ;;
         esac
     fi
@@ -122,7 +121,7 @@ NATIVE_WINDOWS_QEMU="0"
 
 if command -v wslpath >/dev/null; then
     case "$SERENITY_QEMU_BIN" in
-        /mnt/?/*)
+        /win/?/*)
             if [ -z "$SERENITY_VIRT_TECH_ARG" ]; then
                 if [ "$installed_major_version" -gt 5 ]; then
                     SERENITY_VIRT_TECH_ARG="-accel whpx,kernel-irqchip=off -accel tcg"
@@ -254,7 +253,6 @@ if [ "$NATIVE_WINDOWS_QEMU" -ne "1" ]; then
 fi
 
 
-
 [ -z "$SERENITY_COMMON_QEMU_ARGS" ] && SERENITY_COMMON_QEMU_ARGS="
 $SERENITY_EXTRA_QEMU_ARGS
 $SERENITY_MACHINE
@@ -276,6 +274,7 @@ if [ "$SERENITY_ARCH" != "aarch64" ]; then
         "
     fi
 fi
+
 
 [ -z "$SERENITY_COMMON_QEMU_Q35_ARGS" ] && SERENITY_COMMON_QEMU_Q35_ARGS="
 $SERENITY_EXTRA_QEMU_ARGS
@@ -323,6 +322,9 @@ export SDL_VIDEO_X11_DGAMOUSE=0
 
 : "${SERENITY_BUILD:=.}"
 cd -P -- "$SERENITY_BUILD" || die "Could not cd to \"$SERENITY_BUILD\""
+
+env | grep SERENITY
+echo "SERENITY_BOOT_DRIVE=${SERENITY_BOOT_DRIVE}"
 
 if [ "$SERENITY_RUN" = "b" ]; then
     # Meta/run.sh b: bochs
